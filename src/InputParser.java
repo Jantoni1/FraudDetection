@@ -1,25 +1,47 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 public class InputParser {
 
-    InputParser( ) {
-        //TODO
+    private List<String> data;
+    private int currentLine;
+    private int firstLine;
+    private char separator;
+    private String[] parsedLine;
+
+    public InputParser(String path, char separator, boolean skipHeader) throws IOException {
+        this.data = Files.readAllLines(Paths.get(path));
+        this.separator = separator;
+        this.firstLine = skipHeader ? 1 : 0;
+        this.currentLine = this.firstLine;
     }
 
     public boolean nextLine() {
-        return true;
+        if (currentLine < data.size()) {
+            parsedLine = data.get(currentLine++).split(String.valueOf(separator));
+            return true;
+        }
+        return false;
     }
 
-    //TODO parsowanie tutaj bedzie zeby tam czystszy kod byl
     public double[] getParameters() {
-        return new double[0];
+        int size = parsedLine.length - 1;
+        double[] values = new double[size];
+        for (int i = 0; i < size; ++i) {
+            values[i] = Double.parseDouble(parsedLine[i]);
+        }
+        return values;
     }
 
-    //TODO tutaj tak samo niech sam parsuje
-    //TODO niech zwraca aray outputów tak jakbysmy zakladali ze wiecej moze byc bo inaczej gownianie wyglada z tym co pod spodem
     public int[] getOutput() {
-        return new int[0];
+        int values[] = new int[1];
+        values[0] = Integer.parseInt(parsedLine[parsedLine.length - 1]);
+        return values;
     }
 
-    void begin() {
-        //TODO cofanie na poczatek pliku
+    public void begin() {
+        currentLine = firstLine;
     }
 }
