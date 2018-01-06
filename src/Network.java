@@ -56,6 +56,10 @@ public class Network {
     public int getNumberOfLayers() {
         return OUTPUT_LAYER;
     }
+
+    public int getNumberOfOutputs() {
+        return NUMBER_OF_OUTPUTS;
+    }
     
     /**
      * @param layer number of layer in network
@@ -129,9 +133,8 @@ public class Network {
      * it calculates corrections of weights
      * @param inputVector input values given to the network
      * @param learningPattern vector of correct output values that will be used to calculate error
-     * @return output vector calculated by the network
      */
-    double [] learn(double [] inputVector, double [] learningPattern) {
+    void learn(double [] inputVector, int [] learningPattern) {
         // calculate network's output
         double [] output = classify(inputVector);
         // copy correct output vector to class member, so that it will be accessible from neurons
@@ -150,10 +153,9 @@ public class Network {
                 neuron[i][j].calculateCorrections(j);
             }
         ++learning_iteration;
-        return output;
     }
 
-    
+
     /**
      * Update weights values with previously calculated changes
      */
