@@ -1,19 +1,19 @@
 public class Network {
-    public static final double DEFAULT_LEARNING_RATE = 0.1;
+    private static final double DEFAULT_LEARNING_RATE = 0.1;
 
-
-    private int NUMBER_OF_INPUTS;
-    private int NUMBER_OF_OUTPUTS;
+    private int numberOfInputs;
+    private int numberOfOutputs;
     // number of the output (last) layer
-    private int OUTPUT_LAYER;
+    private int outputLayer;
     // number of neurons in each hidden layer
-    private int NUMBER_OF_NEURONS_EACH_LAYER;
+    private int numberOfNeuronsPerLayer;
 
-    double learning_rate;
-    double[] input;
-    double[] learnVector;
-    Neuron[][] neuron;
-    private int learning_iteration;
+    private double learningRate;
+    private double[] input;
+
+    private double[] learnVector;
+    private Neuron[][] neurons;
+    private int learningIteration;
 
     /**
      *
@@ -22,43 +22,67 @@ public class Network {
      * @param hiddenLayers number of hidden layers
      * @param neuronsPerLayer number of neurons per each layer
      */
-    Network(int inputs, int outputs, int hiddenLayers, int neuronsPerLayer) {
-        initializeMembers(inputs, outputs, hiddenLayers, neuronsPerLayer);
+    public Network(int inputs, int outputs, int hiddenLayers, int neuronsPerLayer) {
+        //initializeMembers(inputs, outputs, hiddenLayers, neuronsPerLayer);
+        this.numberOfInputs = inputs;
+        this.numberOfOutputs = outputs;
+        this.outputLayer = hiddenLayers;
+        this.numberOfNeuronsPerLayer = neuronsPerLayer;
+        this.input = new double[numberOfInputs];
+        this.learnVector = new double[numberOfOutputs];
+        this.learningIteration = 0;
 
         // create empty layers
-        neuron = new Neuron[hiddenLayers + 1][];
+        neurons = new Neuron[hiddenLayers + 1][];
         // fill layers with neurons
         createLayers();
-
+        // init network
+        init(DEFAULT_LEARNING_RATE);
     }
 
-    public void createLayers() {
+    private void createLayers() {
         // 1. create first layer
-        neuron[0] = new Neuron[NUMBER_OF_NEURONS_EACH_LAYER];
-        for (int i = 0; i < NUMBER_OF_NEURONS_EACH_LAYER; ++i) {
-            neuron[0][i] = new SigmoidalNeuron(this, NUMBER_OF_INPUTS, 0);
+        neurons[0] = new Neuron[numberOfNeuronsPerLayer];
+        for (int i = 0; i < numberOfNeuronsPerLayer; ++i) {
+            neurons[0][i] = new SigmoidalNeuron(this, numberOfInputs, 0);
         }
         // 2. create following hidden layers
-        for (int i = 1; i < OUTPUT_LAYER; ++i) {
-            neuron[i] = new Neuron[NUMBER_OF_NEURONS_EACH_LAYER];
-            for (int j = 0; j < NUMBER_OF_NEURONS_EACH_LAYER; ++j) {
-                neuron[i][j] = new SigmoidalNeuron(this, NUMBER_OF_NEURONS_EACH_LAYER, i);
+        for (int i = 1; i < outputLayer; ++i) {
+            neurons[i] = new Neuron[numberOfNeuronsPerLayer];
+            for (int j = 0; j < numberOfNeuronsPerLayer; ++j) {
+                neurons[i][j] = new SigmoidalNeuron(this, numberOfNeuronsPerLayer, i);
             }
         }
         // 3. Create output layer
-        neuron[OUTPUT_LAYER] = new Neuron[NUMBER_OF_OUTPUTS];
-        for (int i = 0; i < NUMBER_OF_OUTPUTS; ++i) {
-            neuron[OUTPUT_LAYER][i] = new LinearNeuron(this, NUMBER_OF_NEURONS_EACH_LAYER, OUTPUT_LAYER);
+        neurons[outputLayer] = new Neuron[numberOfOutputs];
+        for (int i = 0; i < numberOfOutputs; ++i) {
+            neurons[outputLayer][i] = new LinearNeuron(this, numberOfNeuronsPerLayer, outputLayer);
         }
 
     }
 
     public int getNumberOfLayers() {
-        return OUTPUT_LAYER;
+        return outputLayer;
     }
 
     public int getNumberOfOutputs() {
-        return NUMBER_OF_OUTPUTS;
+        return numberOfOutputs;
+    }
+
+    public Neuron[][] getNeurons() {
+        return neurons;
+    }
+
+    public double[] getInput() {
+        return input;
+    }
+
+    public double[] getLearnVector() {
+        return learnVector;
+    }
+
+    public double getLearningRate() {
+        return learningRate;
     }
     
     /**
@@ -66,109 +90,90 @@ public class Network {
      * @return number of neurons in this particular layer
      */
     public int getLayersSize(int layer) {
-        return (layer == OUTPUT_LAYER - 1) ? NUMBER_OF_OUTPUTS : NUMBER_OF_NEURONS_EACH_LAYER;
+        return (layer == outputLayer - 1) ? numberOfOutputs : numberOfNeuronsPerLayer;
     }
 
-    /**
-     * assign given values to network's parameters
-     * @see Network#Network(int, int, int, int)
-     */
-    private void initializeMembers(int inputs, int outputs, int hiddenLayers, int neuronsPerLayer) {
-        learning_rate = DEFAULT_LEARNING_RATE;
-        NUMBER_OF_INPUTS = inputs;
-        NUMBER_OF_OUTPUTS = outputs;
-        OUTPUT_LAYER = hiddenLayers;
-        NUMBER_OF_NEURONS_EACH_LAYER = neuronsPerLayer;
-        input = new double[NUMBER_OF_INPUTS];
-        learnVector = new double[NUMBER_OF_OUTPUTS];
-        learning_iteration = 0;
-    }
-
-    
     /**
      * initialize neuron network
      * @param learningFactor learn tempo of network
      */
-    void init(double learningFactor) {
-        learning_rate = learningFactor;
-        for(int i = 0; i < OUTPUT_LAYER; ++i) {
-            for(int j = 0; j < NUMBER_OF_NEURONS_EACH_LAYER; ++j) {
-                neuron[i][j].setNewWeights(false);
+    private void init(double learningFactor) {
+        learningRate = learningFactor;
+        for (int i = 0; i < outputLayer; ++i) {
+            for (int j = 0; j < numberOfNeuronsPerLayer; ++j) {
+                neurons[i][j].setNewWeights(false);
             }
         }
-        for(int j = 0; j < NUMBER_OF_OUTPUTS; ++j) {
-            neuron[OUTPUT_LAYER][j].setNewWeights(true);
+        for (int j = 0; j < numberOfOutputs; ++j) {
+            neurons[outputLayer][j].setNewWeights(true);
         }
-        learning_iteration = 0;
+        learningIteration = 0;
     }
 
-
     /**
-     *  function works properly after network passes training
+     * function works properly after network passes training
      * @param inputVector input values that will be processed by network
      * @return output values calculated by the network
      */
-    double [] classify(double [] inputVector) {
+    public double[] classify(double[] inputVector) {
         // Copy input vector to network's input layer
-        for(int i = 0; i < NUMBER_OF_INPUTS; ++i) {
+        for (int i = 0; i < numberOfInputs; ++i) {
             input[i] = inputVector[i];
         }
         // Calculate network's output
-        for(int i = 0; i < OUTPUT_LAYER; ++i)
-            for(int j = 0; j < NUMBER_OF_NEURONS_EACH_LAYER; ++j)
-                neuron[i][j].calculateOutput();
-        for(int i = 0; i < NUMBER_OF_OUTPUTS; ++i)
-            neuron[OUTPUT_LAYER][i].calculateOutput();
+        for (int i = 0; i < outputLayer; ++i)
+            for(int j = 0; j < numberOfNeuronsPerLayer; ++j)
+                neurons[i][j].calculateOutput();
+        for (int i = 0; i < numberOfOutputs; ++i)
+            neurons[outputLayer][i].calculateOutput();
         // Copy answer from network's output to output vector
-        double [] output  = new double[NUMBER_OF_OUTPUTS];
-        for(int i = 0; i < NUMBER_OF_OUTPUTS; ++i) {
-            output[i] = neuron[OUTPUT_LAYER][i].output;
+        double[] output  = new double[numberOfOutputs];
+        for (int i = 0; i < numberOfOutputs; ++i) {
+            output[i] = neurons[outputLayer][i].getOutput();
         }
         return output;
     }
 
 
     /**
-     *  function that trains network to classify input as accurately as possible
+     * function that trains network to classify input as accurately as possible
      * it calculates corrections of weights
      * @param inputVector input values given to the network
      * @param learningPattern vector of correct output values that will be used to calculate error
      */
-    void learn(double [] inputVector, int [] learningPattern) {
+    void learn(double[] inputVector, int[] learningPattern) {
         // calculate network's output
-        double [] output = classify(inputVector);
+        double[] output = classify(inputVector);
         // copy correct output vector to class member, so that it will be accessible from neurons
-        for(int i = 0; i < NUMBER_OF_OUTPUTS; ++i) {
+        for (int i = 0; i < numberOfOutputs; ++i) {
             learnVector[i] = learningPattern[i];
         }
 
         // calculate new weights in the network
         // here backprop algorithm is used, we calculate output corrections first
-        for(int i = 0; i < NUMBER_OF_OUTPUTS; ++i) {
-            neuron[OUTPUT_LAYER][i].calculateCorrections(i);
+        for (int i = 0; i < numberOfOutputs; ++i) {
+            neurons[outputLayer][i].calculateCorrections(i);
         }
         // then we calculate corrections to all layers weights starting from the one closest to output layer
-        for(int i = OUTPUT_LAYER - 1; i >= 0; --i)
-            for(int j = 0; j < NUMBER_OF_NEURONS_EACH_LAYER; ++j) {
-                neuron[i][j].calculateCorrections(j);
+        for (int i = outputLayer - 1; i >= 0; --i)
+            for (int j = 0; j < numberOfNeuronsPerLayer; ++j) {
+                neurons[i][j].calculateCorrections(j);
             }
-        ++learning_iteration;
+        ++learningIteration;
     }
-
 
     /**
      * Update weights values with previously calculated changes
      */
-    void validate_learning() {
-        //update values
-        for(int i = 0; i < NUMBER_OF_OUTPUTS; ++i) {
-            neuron[OUTPUT_LAYER][i].correctWeights(i, learning_iteration);
+    public void validateLearning() {
+        // update values
+        for (int i = 0; i < numberOfOutputs; ++i) {
+            neurons[outputLayer][i].correctWeights(learningIteration);
         }
-        for(int i = OUTPUT_LAYER - 1; i >= 0; --i)
-            for(int j = 0; j < NUMBER_OF_NEURONS_EACH_LAYER; ++j) {
-                neuron[i][j].correctWeights(j, learning_iteration);
+        for (int i = outputLayer - 1; i >= 0; --i)
+            for (int j = 0; j < numberOfNeuronsPerLayer; ++j) {
+                neurons[i][j].correctWeights(learningIteration);
             }
-        learning_iteration = 0;
+        learningIteration = 0;
     }
-
 }

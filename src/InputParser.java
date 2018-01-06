@@ -36,9 +36,9 @@ public class InputParser {
     }
 
     public int[] getOutput() {
-        int values[] = new int[1];
-        values[0] = Integer.parseInt(parsedLine[parsedLine.length - 1]);
-        return values;
+        int[] result = new int[1];
+        result[0] = Integer.parseInt(parsedLine[parsedLine.length - 1]);
+        return result;
     }
 
     public void begin() {

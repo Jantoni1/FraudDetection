@@ -2,8 +2,6 @@
  * Class performing training sessions on neural network
  */
 public class NetworkController {
-
-
     private Network network;
 
     private int currentQuality;
@@ -17,11 +15,9 @@ public class NetworkController {
 
     private final double weight = 3.0;
 
-
     public NetworkController(Network network) {
         this.network = network;
     }
-
 
     /**
      * function classifies output value based on network's output value(s)
@@ -32,23 +28,25 @@ public class NetworkController {
         return output[0] >= 0.5 ? 1 : 0;
     }
 
-
     /**
      * method runs training sessions for the network until it stops giving better results
      * @param samplesPerEpoch number of input sets that should be used during training session
-     * @param file name of input data file
+     * @param inputParser training set container
      */
-    public void teachBySecondAlgorithm(int samplesPerEpoch, String file) {
+    public void teach(int samplesPerEpoch, InputParser inputParser) {
         initializeMembers();
-        InputParser reader = new InputParser(); //TODO argumenty konstruktora
         do {
             resetMembers();
-            reader.begin();
-            reader.nextLine();
-            runTrainingSession(samplesPerEpoch, reader);
-            reader.begin();
-
+            runTrainingSession(samplesPerEpoch, inputParser);
+            checkValidationSetResults(inputParser);
         } while ((currentQuality < recentQuality) || (currentErrorCount < recentErrorCount));
+    }
+
+    public void test(InputParser inputParser) {
+        resetMembers();
+        checkValidationSetResults(inputParser);
+        System.out.println("Liczba false positives: " + falsePositives);
+        System.out.println("Liczba undetected: " + undetectedFrauds);
     }
 
     /**
@@ -56,11 +54,10 @@ public class NetworkController {
      * @param inputParser input data source
      */
     private void checkValidationSetResults(InputParser inputParser) {
+        inputParser.begin();
         while (inputParser.nextLine()) {
-            double[] data = inputParser.getParameters();
-            int[] answer = inputParser.getOutput();
-            int classification = getClassification(data);
-            if (answer[0] != classification) {
+            int classification = getClassification(inputParser.getParameters());
+            if (inputParser.getOutput()[0] != classification) {
                 ++currentQuality;
                 if (classification == 0) {
                     ++undetectedFrauds;
@@ -78,11 +75,11 @@ public class NetworkController {
      * @param inputParser source of input data
      */
     private void runTrainingSession(int numberOfSamples, InputParser inputParser) {
-        for (int j = 0; j < numberOfSamples; ++j) {
-            double[] data = inputParser.getParameters();
-            int[] answer = inputParser.getOutput();
-            network.learn(data, answer);
-            network.validate_learning();
+        inputParser.begin();
+        for (int i = 0; i < numberOfSamples; ++i) {
+            inputParser.nextLine();
+            network.learn(inputParser.getParameters(), inputParser.getOutput());
+            network.validateLearning();
         }
     }
 
@@ -115,9 +112,8 @@ public class NetworkController {
      * @param input input data vector
      * @return classified value
      */
-    public int getClassification(double [] input) {
-        double [] output = network.classify(input);
+    public int getClassification(double[] input) {
+        double[] output = network.classify(input);
         return interpretOutput(output);
     }
-
 }
