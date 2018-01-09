@@ -1,3 +1,5 @@
+import java.text.DecimalFormat;
+
 /**
  * Class performing training sessions on neural network
  */
@@ -45,8 +47,11 @@ public class NetworkController {
     public void test(InputParser inputParser) {
         resetMembers();
         checkValidationSetResults(inputParser);
+        DecimalFormat df = new DecimalFormat("#.##");
         System.out.println("Liczba false positives: " + falsePositives);
         System.out.println("Liczba undetected: " + undetectedFrauds);
+        System.out.println("Trafnosc dla poprawnych transakcji: " + df.format(100.0d*(1 - falsePositives / 280000.0d)) + "%");
+        System.out.println("Trafnosc dla fraudow: " + df.format(100 * (1 - undetectedFrauds / 492.0d)) + "%");
     }
 
     /**

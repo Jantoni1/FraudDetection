@@ -7,7 +7,7 @@ public class Main {
         NetworkController controller = new NetworkController(network);
 
         try {
-            controller.teach(600, new InputParser("bal.csv", ';', true));
+            controller.teach(400, new InputParser("bal.csv", ';', true));
             controller.test(new InputParser("ful.csv", ';', true));
         }
         catch (IOException e) {

@@ -6,13 +6,13 @@ import java.lang.Math;
 public class SigmoidalNeuron extends Neuron {
 
     //parameter of linear function used to calculate neuron's activate function
-    private static final double ALPHA = 1.0;
+    private static final double ALPHA = 2.5;
 
     /**
      * @see Neuron#Neuron(Network, int, int, boolean)  
      */
     public SigmoidalNeuron(Network network, int numberOfInputs, int layerNumber) {
-        super(network, numberOfInputs, layerNumber, true);
+        super(network, numberOfInputs, layerNumber, false);
     }
 
     /**
@@ -28,6 +28,7 @@ public class SigmoidalNeuron extends Neuron {
      */
     @Override
     public double activateDerivative(double x) {
-        return ALPHA * (1 - output * output);
+
+        return ALPHA * 0.5 * (1 - output * output);
     }
 }

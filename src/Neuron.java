@@ -163,16 +163,15 @@ public abstract class Neuron {
 
     /**
      * Changing values of neuron's weights using back propagation algorithm
-     * @param n number of iterations of calculating corrections
      */
-    public void correctWeights(int n) {
+    public void correctWeights() {
         double tmp;
 
         for(int i = 0; i < inputs; ++i) {
             //temporary store old value
             tmp = weights[i];
             // correct weight's value using MOMENTUM parameter
-            weights[i] += changes[i] / (double)n +  MOMENTUM * (weights[i] - exWeights[i]);
+            weights[i] += changes[i]  +  MOMENTUM * (weights[i] - exWeights[i]);
             //store old value in class member
             exWeights[i] = tmp;
             // clear corrections value
@@ -184,7 +183,7 @@ public abstract class Neuron {
             // temporary store old value
             tmp = weights[inputs];
             // change weight's value using MOMENTUM parameter
-            weights[inputs] += changes[inputs] / (double)n +  MOMENTUM * (weights[inputs] - exWeights[inputs]);
+            weights[inputs] += changes[inputs]  +  MOMENTUM * (weights[inputs] - exWeights[inputs]);
             // store old value
             exWeights[inputs] = tmp;
             // clear value of calculated change

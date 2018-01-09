@@ -13,7 +13,6 @@ public class Network {
 
     private double[] learnVector;
     private Neuron[][] neurons;
-    private int learningIteration;
 
     /**
      *
@@ -30,14 +29,13 @@ public class Network {
         this.numberOfNeuronsPerLayer = neuronsPerLayer;
         this.input = new double[numberOfInputs];
         this.learnVector = new double[numberOfOutputs];
-        this.learningIteration = 0;
 
         // create empty layers
         neurons = new Neuron[hiddenLayers + 1][];
         // fill layers with neurons
         createLayers();
         // init network
-        init(DEFAULT_LEARNING_RATE);
+        init();
     }
 
     private void createLayers() {
@@ -95,10 +93,9 @@ public class Network {
 
     /**
      * initialize neuron network
-     * @param learningFactor learn tempo of network
      */
-    private void init(double learningFactor) {
-        learningRate = learningFactor;
+    private void init() {
+        learningRate = DEFAULT_LEARNING_RATE;
         for (int i = 0; i < outputLayer; ++i) {
             for (int j = 0; j < numberOfNeuronsPerLayer; ++j) {
                 neurons[i][j].setNewWeights(false);
@@ -107,7 +104,6 @@ public class Network {
         for (int j = 0; j < numberOfOutputs; ++j) {
             neurons[outputLayer][j].setNewWeights(true);
         }
-        learningIteration = 0;
     }
 
     /**
@@ -159,7 +155,6 @@ public class Network {
             for (int j = 0; j < numberOfNeuronsPerLayer; ++j) {
                 neurons[i][j].calculateCorrections(j);
             }
-        ++learningIteration;
     }
 
     /**
@@ -168,12 +163,11 @@ public class Network {
     public void validateLearning() {
         // update values
         for (int i = 0; i < numberOfOutputs; ++i) {
-            neurons[outputLayer][i].correctWeights(learningIteration);
+            neurons[outputLayer][i].correctWeights();
         }
         for (int i = outputLayer - 1; i >= 0; --i)
             for (int j = 0; j < numberOfNeuronsPerLayer; ++j) {
-                neurons[i][j].correctWeights(learningIteration);
+                neurons[i][j].correctWeights();
             }
-        learningIteration = 0;
     }
 }
