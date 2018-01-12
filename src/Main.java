@@ -9,7 +9,8 @@ public class Main {
             //controller.teachUsingQuality(400, new InputParser("bal.csv", ';', true));
             controller.teachUsingEpochs(400, 100, new InputParser("bal.csv", ';', true));
             controller.test(new InputParser("ful.csv", ';', true));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }

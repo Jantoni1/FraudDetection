@@ -22,7 +22,6 @@ public class Network {
      * @param neuronsPerLayer number of neurons per each layer
      */
     public Network(int inputs, int outputs, int hiddenLayers, int neuronsPerLayer) {
-        //initializeMembers(inputs, outputs, hiddenLayers, neuronsPerLayer);
         this.numberOfInputs = inputs;
         this.numberOfOutputs = outputs;
         this.outputLayer = hiddenLayers;
@@ -37,6 +36,10 @@ public class Network {
         // init network
         init();
     }
+
+    /**
+     * function creates three layers for network neurons
+     */
 
     private void createLayers() {
         // 1. create first layer

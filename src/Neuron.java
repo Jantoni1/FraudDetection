@@ -142,6 +142,11 @@ public abstract class Neuron {
         calculateNewWeights(tmp);
     }
 
+    /**
+     * calculates new neuron weights depending on the layer to which neuron belongs
+     * @param tmp formula value calculated in calculateCorrections
+     */
+
     private void calculateNewWeights(double tmp) {
         // a) for output layer (linear) neuron
         if (layer == 0) {

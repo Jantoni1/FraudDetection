@@ -57,6 +57,11 @@ public class NetworkController {
         }
     }
 
+    /**
+     * method displays fraud finding results of the neural network by showing both percentage and number values
+     * @param inputParser input data source
+     */
+
     public void test(InputParser inputParser) {
         resetMembers();
         checkValidationSetResults(inputParser);
