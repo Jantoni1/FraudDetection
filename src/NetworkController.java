@@ -35,7 +35,7 @@ public class NetworkController {
      * @param samplesPerEpoch number of input sets that should be used during training session
      * @param inputParser training set container
      */
-    public void teach(int samplesPerEpoch, InputParser inputParser) {
+    public void teachUsingQuality(int samplesPerEpoch, InputParser inputParser) {
         initializeMembers();
         do {
             resetMembers();
@@ -44,13 +44,26 @@ public class NetworkController {
         } while ((currentQuality < recentQuality) || (currentErrorCount < recentErrorCount));
     }
 
+    /**
+     * method runs training sessions for the network until it stops giving better results
+     * @param samplesPerEpoch number of input sets that should be used during training session
+     * @param epochs number of epochs
+     * @param inputParser training set container
+     */
+    public void teachUsingEpochs(int samplesPerEpoch, int epochs, InputParser inputParser) {
+        initializeMembers();
+        for (int epoch = 0; epoch < epochs; ++epoch) {
+            runTrainingSession(samplesPerEpoch, inputParser);
+        }
+    }
+
     public void test(InputParser inputParser) {
         resetMembers();
         checkValidationSetResults(inputParser);
         DecimalFormat df = new DecimalFormat("#.##");
         System.out.println("Liczba false positives: " + falsePositives);
         System.out.println("Liczba undetected: " + undetectedFrauds);
-        System.out.println("Trafnosc dla poprawnych transakcji: " + df.format(100.0d*(1 - falsePositives / 280000.0d)) + "%");
+        System.out.println("Trafnosc dla poprawnych transakcji: " + df.format(100.0 * (1 - falsePositives / 284315.0d)) + "%");
         System.out.println("Trafnosc dla fraudow: " + df.format(100 * (1 - undetectedFrauds / 492.0d)) + "%");
     }
 

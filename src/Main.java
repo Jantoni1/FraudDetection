@@ -3,14 +3,13 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-        Network network = new Network(29, 1, 3, 30);
+        Network network = new Network(29, 1, 4, 40);
         NetworkController controller = new NetworkController(network);
-
         try {
-            controller.teach(400, new InputParser("bal.csv", ';', true));
+            //controller.teachUsingQuality(400, new InputParser("bal.csv", ';', true));
+            controller.teachUsingEpochs(400, 100, new InputParser("bal.csv", ';', true));
             controller.test(new InputParser("ful.csv", ';', true));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
