@@ -45,7 +45,7 @@ public class NetworkController {
     }
 
     /**
-     * method runs training sessions for the network until it stops giving better results
+     * method runs a specified number of training sessions for the network
      * @param samplesPerEpoch number of input sets that should be used during training session
      * @param epochs number of epochs
      * @param inputParser training set container
